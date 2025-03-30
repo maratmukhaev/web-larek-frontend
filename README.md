@@ -70,9 +70,11 @@ interface IOrderForm {
   email: string;
   phone: string;
 }
+```
 
-Данные заказа:
+Готовый заказ:
 
+```
 interface IOrder extends IOrderForm {
   total: number;
   items: string[];
@@ -268,7 +270,6 @@ interface IOrderResult {
 #### Класс AppApi
 
 Наследует базовый класс `Api`. Принимает в конструктор базовый URL сервера и URL для фомирования адреса изображения товара. Предоставляет методы реализующие взаимодействие с бэкендом сервиса.
-
 
 ## Взаимодействие компонентов
 
