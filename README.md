@@ -65,7 +65,7 @@ interface IProductList {
 
 ```
 interface IOrderForm {
-  payment: TPaymentMethod;
+  payment: string;
   address: string;
   email: string;
   phone: string;
@@ -97,7 +97,7 @@ type TProductBasket = Pick<IProduct, 'id' | 'title' | 'price'>;
 
 ```
 interface IBasket {
-  items: IProduct[];
+  items: TProductBasket[];
   total: number | null;
 } 
 ```
@@ -122,7 +122,7 @@ type TOrderContacts = Pick<IOrderForm, 'email' | 'phone'>;
 
 Тип ошибок форм заказа:
 ```
-type FormErrors = Partial<Record<keyof IOrderForm, string>>;
+type TFormErrors = Partial<Record<keyof IOrderForm, string>>;
 ```
 
 Тип данных успешного заказа:
@@ -198,15 +198,15 @@ interface IOrderResult {
 - `setPreview(item: IProduct): void` — сохраняет выбранный товар для детального просмотра.
 - `addProductToBasket(item: IProduct): void` — добавляет товар в массив корзины. 
 - `deleteProductFromBasket(id: string): void` — удаляет товар из массива корзины.
-- `isAdded(id: string): boolean` — проверяет наличие товара в массиве корзины. 
+- `isAdded(item: IProduct): void` — проверяет наличие товара в массиве корзины. 
 - `getBasketTotal(): number` — получает общую стоимость товаров в корзине.
 - `getBasketCount(): number` — получает количество товаров в корзине.
-- `getProductIndex(item: IProduct): number` — получает индекс товара, добавленного в корзину.
-- `setOrderField(field: keyof IOrderForm, value: string): string` — устанавливает значения полей формы заказа.
+- `getProductIndex(item: IProduct): number` — получает порядковый номер товара в корзине.
+- `setOrderField(field: keyof IOrderForm, value: string): void` — устанавливает значения полей формы заказа.
 - `validateOrder(): boolean` — проверяет заполнение полей формы заказа.
 - `addBasketToOrder(): IOrder` — добавляет в заказ массив товаров и сумму из корзины.
-- `clearBasket(): IProduct[]` — очищает корзину от всех товаров.
-- `clearOrder(): IOrder` — очищает данные заказа.
+- `clearBasket(): void` — очищает корзину от всех товаров.
+- `clearOrder(): void` — очищает данные заказа.
 
 ### Слой представления
 

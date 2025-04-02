@@ -21,13 +21,13 @@ export type TProductBasket = Pick<IProduct, 'id' | 'title' | 'price'>;
 
 //Корзина товаров
 export interface IBasket {
-  items: IProduct[];
+  items: TProductBasket[];
   total: number | null;
-} 
+}
 
 //Форма заказа
 export interface IOrderForm {
-  payment: TPaymentMethod;
+  payment: string;
   address: string;
   email: string;
   phone: string;
@@ -49,7 +49,7 @@ export type TOrderPayment = Pick<IOrderForm, 'payment' | 'address'>;
 export type TOrderContacts = Pick<IOrderForm, 'email' | 'phone'>;
 
 //Тип ошибок форм заказа
-export type FormErrors = Partial<Record<keyof IOrderForm, string>>;
+export type TFormErrors = Partial<Record<keyof IOrderForm, string>>;
 
 //Тип данных успешного заказа:
 export interface IOrderResult {
@@ -68,14 +68,20 @@ export interface IAppModel {
   setPreview(item: IProduct): void;
   addProductToBasket(item: IProduct): void;
   deleteProductFromBasket(id: string): void;
-  isAdded(id: string): boolean;
+  isAdded(item: IProduct): void;
   getBasketTotal(): number;
   getBasketCount(): number;
   getProductIndex(item: IProduct): number;
-  setOrderField(field: keyof IOrderForm, value: string): string;
+  setOrderField(field: keyof IOrderForm, value: string): void;
   validateOrder(): boolean;
-  addBasketToOrder(): IOrder;
-  clearBasket(): IProduct[];
-  clearOrder(): IOrder;
+  //addBasketToOrder(): IOrder;
+  clearBasket(): void;
+  clearOrder(): void;
 }
 
+//Интерфейс для работы с данными с сервера
+export interface IAppApi {
+  getProductItem: (id: string) => Promise<IProduct>;
+	getProductList: () => Promise<IProduct[]>;
+	orderItems(order: IOrder): Promise<IOrderResult>;
+}
