@@ -1,6 +1,7 @@
 import {TFormErrors, IAppModel, IOrderForm, IProduct, IOrder} from "../types";
+import { IEvents } from '../components/base/Events'
 
-export class AppData implements IAppModel {
+export class AppData<T> implements IAppModel {
   catalog: IProduct[] = [];
   preview: string | null;
   basket: IProduct[] = [];
@@ -12,22 +13,28 @@ export class AppData implements IAppModel {
   };
   formErrors: TFormErrors = {};
 
-  constructor() {}
+  constructor(data: Partial<T>, protected events: IEvents) {
+    Object.assign(this, data);
+  }
 
   setCatalog(items: IProduct[]) {
     this.catalog = items;
+    this.events.emit('products:changed');
   }
   
   setPreview(item: IProduct) {
     this.preview = item.id;
+    this.events.emit('preview:changed');
   }
   
   addProductToBasket(item: IProduct) {
-    this.basket.push(item); 
+    this.basket.push(item);
+    this.events.emit('basket:changed', this.basket);
   }
   
   deleteProductFromBasket(id: string) {
     this.basket = this.basket.filter(item => item.id !== id);
+    this.events.emit('basket:changed', this.basket);
   };
   
   isAdded(item: IProduct) {
@@ -50,6 +57,7 @@ export class AppData implements IAppModel {
   
   setOrderField(field: keyof IOrderForm, value: string) {
     this.order[field] = value;
+    this.validateOrder();
   }
   
   validateOrder() {
@@ -67,6 +75,7 @@ export class AppData implements IAppModel {
       errors.phone = 'Необходимо указать телефон';
     }
     this.formErrors = errors;
+    this.events.emit('formErrors:changed', this.formErrors);
     return Object.keys(errors).length === 0;
 }
   /*
@@ -77,6 +86,7 @@ export class AppData implements IAppModel {
   
   clearBasket() {
     this.basket = [];
+    this.events.emit('basket:changed', this.basket);
   };
   
   clearOrder() {

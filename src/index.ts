@@ -1,73 +1,55 @@
 import './scss/styles.scss';
 import { AppData } from './components/AppData';
-import { EventEmitter, IEvents } from './components/base/Events';
+import { EventEmitter } from './components/base/Events';
+import { AppApi } from './components/AppApi';
+import { API_URL, CDN_URL } from './utils/constants';
+import { ProductCardCatalog, ProductCardPreview, ProductCardBasket } from './components/ProductCard';
+import { cloneTemplate, ensureElement } from './utils/utils';
+import { Page } from './components/Page';
 
-const appData = new AppData();
+const events = new EventEmitter();
+const api = new AppApi(CDN_URL, API_URL);
 
-const cards = [
-  {
-    "id": "854cef69-976d-4c2a-a18c-2aa45046c390",
-    "description": "Если планируете решать задачи в тренажёре, берите два.",
-    "image": "/5_Dots.svg",
-    "title": "+1 час в сутках",
-    "category": "софт-скил",
-    "price": 750
-},
-{
-  "id": "123123",
-  "description": "еще один продукт",
-  "image": "/3_Dots.svg",
-  "title": "Другой продукт",
-  "category": "хард-скил",
-  "price": 50
-}
-]
-const card1 = 
-  {
-    "id": "854cef69-976d-4c2a-a18c-2aa45046c390",
-    "description": "Если планируете решать задачи в тренажёре, берите два.",
-    "image": "/5_Dots.svg",
-    "title": "+1 час в сутках",
-    "category": "софт-скил",
-    "price": 750
-}
+// Чтобы мониторить все события, для отладки
+events.onAll(({ eventName, data }) => {
+  console.log(eventName, data);
+})
 
-const card2 = 
-{
-  "id": "123123",
-  "description": "еще один продукт",
-  "image": "/3_Dots.svg",
-  "title": "Другой продукт",
-  "category": "хард-скил",
-  "price": 50
-}
+const appData = new AppData({}, events);
 
-appData.setCatalog(cards);
+Promise.all([api.getProductList()])
+.then(([data]) => {
+  appData.setCatalog(data);
+})
+.catch((err) => {
+  console.log(err);
+});
 
-console.log(appData.catalog);
+const cardCatalogTemplate = ensureElement<HTMLTemplateElement>('#card-catalog');
 
-appData.addProductToBasket(card1);
-appData.addProductToBasket(card2);
+const page = new Page(document.body, events);
+const card1 = new ProductCardCatalog(cloneTemplate(cardCatalogTemplate), events);
+const card2 = new ProductCardCatalog(cloneTemplate(cardCatalogTemplate), events);
 
-console.log(appData.getProductIndex(card1));
+card1.title = 'Товар 1'
+card1.description = 'Описание';
+card1.image = 'https://larek-api.nomoreparties.co/content/weblarek/5_Dots.svg';
+card1.price = '876';
+card1.category = 'категория';
+card1.id = '54321';
 
-console.log(appData.basket);
-console.log(appData.getBasketCount());
-console.log(appData.getBasketTotal());
 
-appData.setPreview(card2);
-console.log(appData.preview);
+card2.title = 'Товар 2'
+card2.description = 'Описание';
+card2.image = 'https://larek-api.nomoreparties.co/content/weblarek/5_Dots.svg';
+card2.price = '';
+card2.category = 'категория';
+card2.id = '12345';
 
-appData.setOrderField("address", "Москва");
-appData.setOrderField("email", "ya@ya.ru");
-appData.setOrderField("phone", "+79031111111");
-appData.setOrderField("payment", 'cash');
-console.log(appData.order);
-console.log(appData.validateOrder());
-console.log(appData.formErrors);
-appData.clearOrder();
-console.log(appData.order);
-appData.clearBasket();
-console.log(appData.basket);
-appData.addProductToBasket(card2);
-console.log(appData.basket);
+const cardCatalog = [];
+cardCatalog.push(card1.render());
+cardCatalog.push(card2.render());
+
+page.render({catalog: cardCatalog})
+
+page.render({counter: 10});
