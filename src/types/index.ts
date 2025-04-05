@@ -6,6 +6,7 @@ export interface IProduct {
   title: string;
   category: string;
   price: number | null;
+  button: string;
 }
 
 export interface IProductList {
@@ -68,7 +69,7 @@ export interface IAppModel {
   setPreview(item: IProduct): void;
   addProductToBasket(item: IProduct): void;
   deleteProductFromBasket(id: string): void;
-  isAdded(item: IProduct): void;
+  isAddedToBusket(item: IProduct): void;
   getBasketTotal(): number;
   getBasketCount(): number;
   getProductIndex(item: IProduct): number;

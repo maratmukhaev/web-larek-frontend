@@ -38,11 +38,11 @@ export class Modal extends Component<IModalData> {
     this.events.emit('modal:close');
   }
 
-  handleEscUp (evt: KeyboardEvent) {
+  handleEscUp(evt: KeyboardEvent) {
     if (evt.key === "Escape") {
       this.close();
     }
-  };
+  }
 
   render(data: IModalData): HTMLElement {
     super.render(data);

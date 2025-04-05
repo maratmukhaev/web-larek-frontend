@@ -20,32 +20,46 @@ export class AppData<T> implements IAppModel {
   setCatalog(items: IProduct[]) {
     this.catalog = items;
     this.events.emit('products:changed');
-  }
+  };
   
   setPreview(item: IProduct) {
     this.preview = item.id;
-    this.events.emit('preview:changed');
-  }
+    this.events.emit('preview:changed', item);
+  };
   
   addProductToBasket(item: IProduct) {
     this.basket.push(item);
     this.events.emit('basket:changed', this.basket);
-  }
+  };
   
   deleteProductFromBasket(id: string) {
     this.basket = this.basket.filter(item => item.id !== id);
     this.events.emit('basket:changed', this.basket);
   };
   
-  isAdded(item: IProduct) {
-    return !this.basket.some(product => product.id === item.id) 
-    ? this.addProductToBasket(item)
-    : this.deleteProductFromBasket(item.id);
+  isAddedToBusket(item: IProduct) {
+    if (!this.basket.some(product => product.id === item.id)) {
+      return this.addProductToBasket(item);
+    } else {
+      return this.deleteProductFromBasket(item.id);
+    }
   };
+
+  getButtonStatus(item: IProduct) {
+    if (!item.price) {
+			return 'Не продается';
+		}
+    
+    if (!this.basket.some(product => product.id === item.id)) {
+      return 'Добавить в корзину';
+    } else {
+      return 'Удалить из корзины';
+    }
+  }
   
   getBasketTotal() {
     return this.basket.reduce((total, item) => total + item.price, 0);
-  }
+  };
   
   getBasketCount() {
     return this.basket.length;
@@ -58,7 +72,7 @@ export class AppData<T> implements IAppModel {
   setOrderField(field: keyof IOrderForm, value: string) {
     this.order[field] = value;
     this.validateOrder();
-  }
+  };
   
   validateOrder() {
     const errors: typeof this.formErrors = {};
@@ -77,7 +91,7 @@ export class AppData<T> implements IAppModel {
     this.formErrors = errors;
     this.events.emit('formErrors:changed', this.formErrors);
     return Object.keys(errors).length === 0;
-}
+};
   /*
   setOrder() {
 

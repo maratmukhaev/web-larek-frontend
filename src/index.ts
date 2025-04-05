@@ -10,66 +10,83 @@ import { Basket } from './components/Basket';
 import { Succes } from './components/Success';
 import { OrderContacts, OrderPayment } from './components/Order';
 import { Modal } from './components/Modal';
+import { IProduct } from './types';
 
 const events = new EventEmitter();
 const api = new AppApi(CDN_URL, API_URL);
 
-// Чтобы мониторить все события, для отладки
+// Мониторинг всей событий
 events.onAll(({ eventName, data }) => {
   console.log(eventName, data);
 })
 
+//Темплейты
+const productCatalogTemplate = ensureElement<HTMLTemplateElement>('#card-catalog');
+const productPreviewTemplate = ensureElement<HTMLTemplateElement>('#card-preview');
+const productBasketTemplate = ensureElement<HTMLTemplateElement>('#card-basket');
+const basketTemplate = ensureElement<HTMLTemplateElement>('#basket');
+const paymentTemplate = ensureElement<HTMLTemplateElement>('#order');
+const contactsTemplate = ensureElement<HTMLTemplateElement>('#contacts');
+const successTemplate = ensureElement<HTMLTemplateElement>('#success');
+
+//Модель данных приложения
 const appData = new AppData({}, events);
 
-Promise.all([api.getProductList()])
-.then(([data]) => {
-  appData.setCatalog(data);
-  events.emit('initialData:loaded');
-})
-.catch((err) => {
-  console.log(err);
+//Глобальные контейнеры
+const page = new Page(document.body, events);
+const modal = new Modal(ensureElement<HTMLElement>('#modal-container'), events);
+
+//Переиспользуемые части интерфейса
+const basket = new Basket(cloneTemplate(basketTemplate), events);
+const orderPayment = new OrderPayment(cloneTemplate(paymentTemplate), events);
+const orderContacts = new OrderContacts(cloneTemplate(contactsTemplate), events);
+
+//Получаем каталог продуктов с сервера
+api.getProductList()
+    .then(appData.setCatalog.bind(appData))
+    .catch(err => {
+        console.error(err);
+    });
+
+//Изменились элементы каталога
+events.on('products:changed', () => {
+  page.catalog = appData.catalog.map(item => {
+    const productCardCatalog = new ProductCardCatalog(cloneTemplate(productCatalogTemplate), events);
+    return productCardCatalog.render(item);
+  });
+  /*page.counter = appData.getBasketCount();*/
 });
 
-const basketTemplate = ensureElement<HTMLTemplateElement>('#basket');
-const cardBasketTemplate = ensureElement<HTMLTemplateElement>('#card-basket');
-const succesTemplate = ensureElement<HTMLTemplateElement>('#success');
-const formOrderTemplate = ensureElement<HTMLTemplateElement>('#contacts');
-const modalTemplate = ensureElement<HTMLTemplateElement>('modal');
-const element = document.querySelector('.header__basket-counter') as HTMLElement;
+//Выбрана карточка для детального просмотра
+events.on('product:select', (item: IProduct) => {
+  appData.setPreview(item);
+});
 
+//Изменилась карточка для детального просмотра
+events.on('preview:changed', (item: IProduct) => {
+  const productCardPreview = new ProductCardPreview(cloneTemplate(productPreviewTemplate), events);
+  modal.render({
+    content: productCardPreview.render({
+      title: item.title,
+      price: item.price,
+      description: item.description,
+      category: item.category,
+      button: appData.getButtonStatus(item),
+    }),
+  });
+});
 
-const testSection = document.querySelector('.gallery');
+//Нажатие на кнопку в окне детального просмотра
+events.on('button:status', (item: IProduct) => {
+	appData.isAddedToBusket(item);
+});
 
-const modal = new Modal(cloneTemplate(modalTemplate), events);
-const order = new OrderPayment(cloneTemplate(formOrderTemplate), events);
-const orderContacts = new OrderContacts(cloneTemplate(formOrderTemplate), events);
-const succes = new Succes(cloneTemplate(succesTemplate), events);
-const basket = new Basket(cloneTemplate(basketTemplate), events);
-const card1 = new ProductCardBasket(cloneTemplate(cardBasketTemplate), events);
-const card2 = new ProductCardBasket(cloneTemplate(cardBasketTemplate), events);
+//Открылось модальное окно
+events.on('modal:open', () => {
+	page.locked = true;
+});
 
-card1.title = 'Товар 1';
-card1.description = 'Описание';
-card1.image = 'sdgdfg';
-card1.price = '3253';
-card1.category = 'категория';
-card1.id = '24225';
-card1.index = 1;
-
-card2.title = 'Товар 2';
-card2.description = 'Описание';
-card2.image = 'sdgdfg';
-card1.price = '3253';
-card2.category = 'категория';
-card2.id = '243524';
-card2.index = 2;
-
-const cardsBasket = [];
-
-cardsBasket.push(card1.render());
-cardsBasket.push(card2.render());
-
-succes.total = 234;
-
-testSection.append(modal.render({content: element}));
-
+//Закрылось модальное окно
+events.on('modal:closed', () => {
+	page.locked = false;
+});
