@@ -4,12 +4,12 @@ import { Component } from "./base/Component";
 import { IEvents } from "./base/Events";
 
 export class ProductCard<T> extends Component<T> {
-  protected _description: HTMLElement;
-  protected _image: HTMLImageElement;
+  protected _description?: HTMLElement;
+  protected _image?: HTMLImageElement;
   protected _title: HTMLElement;
-  protected _category: HTMLElement;
+  protected _category?: HTMLElement;
   protected _price: HTMLElement;
-  protected _button: HTMLButtonElement;
+  protected _button?: HTMLButtonElement;
 
   constructor(container: HTMLElement, protected events: IEvents) {
     super(container);
@@ -86,7 +86,7 @@ export class ProductCardCatalog extends ProductCard<TProductPage> {
     super(container, events);
 
     this.container.addEventListener('click', () => { 
-      this.events.emit('product:select', {id: this.id})
+      this.events.emit('product:select', {product: this})
     });
   }
 }
@@ -97,7 +97,7 @@ export class ProductCardPreview extends ProductCard<IProduct> {
     super(container, events);
 
     this._button.addEventListener('click', () => { 
-      this.events.emit('basket:changed', {id: this.id});
+      this.events.emit('basket:changed', {product: this});
     });
   }
 }
@@ -113,7 +113,7 @@ export class ProductCardBasket extends ProductCard<TProductBasket> {
     this._deleteButton = ensureElement<HTMLButtonElement>(`.basket__item-delete`, container);
     
     this._deleteButton.addEventListener('click', () => {
-      this.events.emit('basket:changed', {id: this.id});
+      this.events.emit('basket:changed', {product: this});
     });
   }
 
