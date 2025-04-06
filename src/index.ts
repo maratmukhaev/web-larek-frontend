@@ -7,10 +7,10 @@ import { ProductCardCatalog, ProductCardPreview, ProductCardBasket } from './com
 import { cloneTemplate, ensureElement } from './utils/utils';
 import { Page } from './components/Page';
 import { Basket } from './components/Basket';
-import { Succes } from './components/Success';
+import { Success } from './components/Success';
 import { OrderContacts, OrderPayment } from './components/Order';
 import { Modal } from './components/Modal';
-import { IProduct } from './types';
+import { IOrderForm, IProduct } from './types';
 
 const events = new EventEmitter();
 const api = new AppApi(CDN_URL, API_URL);
@@ -40,6 +40,7 @@ const modal = new Modal(ensureElement<HTMLElement>('#modal-container'), events);
 const basket = new Basket(cloneTemplate(basketTemplate), events);
 const orderPayment = new OrderPayment(cloneTemplate(paymentTemplate), events);
 const orderContacts = new OrderContacts(cloneTemplate(contactsTemplate), events);
+const success = new Success(cloneTemplate(successTemplate), events);
 
 //Получаем каталог продуктов с сервера
 api.getProductList()
@@ -54,11 +55,11 @@ events.on('products:changed', () => {
     const productCardCatalog = new ProductCardCatalog(cloneTemplate(productCatalogTemplate), events);
     return productCardCatalog.render(item);
   });
-  /*page.counter = appData.getBasketCount();*/
 });
 
 //Выбрана карточка для детального просмотра
-events.on('product:select', (item: IProduct) => {
+events.on('product:select', ({id}: {id: string}) => {
+  const item = appData.getProduct(id);
   appData.setPreview(item);
 });
 
@@ -67,18 +68,103 @@ events.on('preview:changed', (item: IProduct) => {
   const productCardPreview = new ProductCardPreview(cloneTemplate(productPreviewTemplate), events);
   modal.render({
     content: productCardPreview.render({
-      title: item.title,
-      price: item.price,
-      description: item.description,
-      category: item.category,
+      ...item, 
       button: appData.getButtonStatus(item),
-    }),
+    })
   });
 });
 
-//Нажатие на кнопку в окне детального просмотра
-events.on('button:status', (item: IProduct) => {
+//Нажата кнопка в окне детального просмотра
+events.on('button:status', ({id}: {id: string}) => {
+  const item = appData.getProduct(id);
 	appData.isAddedToBusket(item);
+  modal.close();
+});
+
+//Открылась корзина
+events.on('basket:open', () => {
+  modal.render({
+    content: basket.render(),
+  })
+})
+
+//Изменились данные корзины
+events.on('basket:changed', () => {
+  page.counter = appData.getBasketCount();
+  basket.total = appData.getBasketTotal();
+  basket.items = appData.basket.map(item => {
+    const productCardBasket = new ProductCardBasket(cloneTemplate(productBasketTemplate), events);
+    productCardBasket.index = appData.getProductIndex(item);
+    return productCardBasket.render({
+      ...item,
+    })
+  })
+})
+
+//Удалился товар из корзины
+events.on('basket:delete', ({id}: {id: string}) => {
+  const item = appData.getProduct(id);
+  appData.deleteProductFromBasket(item);
+})
+
+//Открылась форма оплаты и адреса
+events.on('order:open', () => {
+  modal.render({
+    content: orderPayment.render({
+      address: '',
+      valid: true, 
+      errors: [],
+    })
+  })
+})
+
+//Изменилось одно из полей формы
+events.on('input:change', (data: { 
+  field: keyof IOrderForm, 
+  value: string 
+}) => {
+  appData.setOrderField(data.field, data.value);
+});
+
+//Изменился способ оплаты
+events.on('payment:change', (data: { payment: string, button: HTMLElement }) => {
+orderPayment.togglePayment(data.button);
+appData.validateOrder();
+});
+
+//Подтверждение способа оплаты и адреса
+events.on('order:submit', () => {
+	modal.render({
+		content: orderContacts.render({
+			email: '',
+      phone: '',
+			valid: false,
+			errors: [],
+		}),
+	});
+});
+
+//Подтверждение почты и телефона
+events.on('contacts:submit', () => {
+	modal.render({
+		content: success.render({
+      total: appData.getBasketTotal(),
+    }),
+	});
+});
+
+
+//Изменилось состояние валидации формы
+events.on('formErrors:changed', (errors: Partial<IOrderForm>) => {
+	const { email, phone, address, payment } = errors;
+	orderPayment.valid = !payment && !address;
+	orderPayment.errors = Object.values({ payment, address })
+		.filter((i) => !!i)
+		.join(' и ');
+  orderContacts.valid = !email && !phone;
+  orderContacts.errors = Object.values({ email, phone })
+		.filter((i) => !!i)
+		.join(' и ');
 });
 
 //Открылось модальное окно
@@ -87,6 +173,6 @@ events.on('modal:open', () => {
 });
 
 //Закрылось модальное окно
-events.on('modal:closed', () => {
+events.on('modal:close', () => {
 	page.locked = false;
 });

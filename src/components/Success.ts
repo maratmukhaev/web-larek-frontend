@@ -2,11 +2,11 @@ import { ensureElement } from "../utils/utils";
 import { Component } from "./base/Component";
 import { IEvents } from "./base/Events";
 
-interface ISucces {
+interface ISuccess {
   total: number;
 }
 
-export class Succes extends Component<ISucces> {
+export class Success extends Component<ISuccess> {
   protected _description: HTMLElement;
   protected _closeButton: HTMLButtonElement;
 

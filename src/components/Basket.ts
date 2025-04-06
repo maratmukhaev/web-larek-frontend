@@ -28,8 +28,9 @@ export class Basket extends Component<IBasket> {
       this.setDisabled(this._button, false);
     } else {
       this._list.replaceChildren(createElement<HTMLParagraphElement>('p', {
-        textContent: 'Корзина пуста' })
+        textContent: 'В корзине пока нет товаров' })
       );
+      this.setText(this._button, 'Оформить')
       this.setDisabled(this._button, true);
   }
 }

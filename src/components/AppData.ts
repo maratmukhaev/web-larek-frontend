@@ -17,9 +17,13 @@ export class AppData<T> implements IAppModel {
     Object.assign(this, data);
   }
 
+  getProduct(id: string) {
+		return this.catalog.find(item => item.id === id);
+	}
+
   setCatalog(items: IProduct[]) {
     this.catalog = items;
-    this.events.emit('products:changed');
+    this.events.emit('products:changed', { catalog: this.catalog });
   };
   
   setPreview(item: IProduct) {
@@ -29,19 +33,19 @@ export class AppData<T> implements IAppModel {
   
   addProductToBasket(item: IProduct) {
     this.basket.push(item);
-    this.events.emit('basket:changed', this.basket);
+    this.events.emit('basket:changed', item);
   };
   
-  deleteProductFromBasket(id: string) {
-    this.basket = this.basket.filter(item => item.id !== id);
-    this.events.emit('basket:changed', this.basket);
+  deleteProductFromBasket(item: IProduct) {
+    this.basket = this.basket.filter(product => product.id !== item.id);
+    this.events.emit('basket:changed', item);
   };
   
   isAddedToBusket(item: IProduct) {
     if (!this.basket.some(product => product.id === item.id)) {
       return this.addProductToBasket(item);
     } else {
-      return this.deleteProductFromBasket(item.id);
+      return this.deleteProductFromBasket(item);
     }
   };
 
@@ -71,22 +75,24 @@ export class AppData<T> implements IAppModel {
   
   setOrderField(field: keyof IOrderForm, value: string) {
     this.order[field] = value;
-    this.validateOrder();
+    if (this.validateOrder()) {
+      this.events.emit('order:ready', this.order);
+    }
   };
   
   validateOrder() {
     const errors: typeof this.formErrors = {};
     if (!this.order.payment) {
-        errors.payment = 'Необходимо выбрать способ оплаты';
+        errors.payment = 'выберите способ оплаты';
     }
     if (!this.order.address) {
-        errors.address = 'Необходимо указать адрес';
+        errors.address = 'укажите адрес';
     }
     if (!this.order.email) {
-      errors.email = 'Необходимо указать электронную почту';
+      errors.email = 'укажите электронную почту';
     }
     if (!this.order.phone) {
-      errors.phone = 'Необходимо указать телефон';
+      errors.phone = 'укажите телефон';
     }
     this.formErrors = errors;
     this.events.emit('formErrors:changed', this.formErrors);

@@ -3,13 +3,14 @@ import { ensureElement } from "../utils/utils";
 import { Component } from "./base/Component";
 import { IEvents } from "./base/Events";
 
-export class ProductCard<T> extends Component<T> {
-  protected _description: HTMLElement;
-  protected _image: HTMLImageElement;
+export class ProductCard<T> extends Component<IProduct> {
+  protected _description?: HTMLElement;
+  protected _image?: HTMLImageElement;
   protected _title: HTMLElement;
-  protected _category: HTMLElement;
+  protected _category?: HTMLElement;
   protected _price: HTMLElement;
-  protected _button: HTMLButtonElement;
+  protected _button?: HTMLButtonElement;
+  protected _id: string;
 
   constructor(container: HTMLElement, protected events: IEvents) {
     super(container);
@@ -23,10 +24,11 @@ export class ProductCard<T> extends Component<T> {
   }
 
   set id(value: string) {
-		this.container.dataset.id = value;
+		this._id = value;
 	}
-	get id(): string {
-		return this.container.dataset.id || '';
+
+  get id() {
+		return this._id;
 	}
 
   set description(value: string) {
@@ -63,7 +65,7 @@ export class ProductCard<T> extends Component<T> {
 
 	set price(value: string) {
 		if (value) {
-			this.setText(this._price, value + ` синапсов`);
+			this.setText(this._price, `${value} синапсов`);
 		} else {
 			this.setText(this._price, `Бесценно`);
       this.setDisabled(this._button, true);
@@ -85,7 +87,7 @@ export class ProductCardCatalog extends ProductCard<TProductPage> {
     super(container, events);
 
     this.container.addEventListener('click', () => { 
-      this.events.emit('product:select', {item: this});
+      this.events.emit('product:select', {id: this.id});
     });
   }
 }
@@ -96,7 +98,7 @@ export class ProductCardPreview extends ProductCard<IProduct> {
     super(container, events);
 
     this._button.addEventListener('click', () => { 
-      this.events.emit('button:status', {item: this});
+      this.events.emit('button:status', {id: this.id});
     });
   }
 }
@@ -112,7 +114,7 @@ export class ProductCardBasket extends ProductCard<TProductBasket> {
     this._deleteButton = ensureElement<HTMLButtonElement>(`.basket__item-delete`, container);
     
     this._deleteButton.addEventListener('click', () => {
-      this.events.emit('basket:changed', {item: this});
+      this.events.emit('basket:delete', {id: this.id});
     });
   }
 

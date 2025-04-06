@@ -68,7 +68,7 @@ export interface IAppModel {
   setCatalog(items: IProduct[]): void;
   setPreview(item: IProduct): void;
   addProductToBasket(item: IProduct): void;
-  deleteProductFromBasket(id: string): void;
+  deleteProductFromBasket(item: IProduct): void;
   isAddedToBusket(item: IProduct): void;
   getBasketTotal(): number;
   getBasketCount(): number;
