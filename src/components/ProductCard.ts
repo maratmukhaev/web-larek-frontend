@@ -1,15 +1,16 @@
 import { IProduct, TProductPage, TProductBasket } from "../types";
+import { productCategory } from "../utils/constants";
 import { ensureElement } from "../utils/utils";
 import { Component } from "./base/Component";
 import { IEvents } from "./base/Events";
 
 export class ProductCard<T> extends Component<IProduct> {
-  protected _description?: HTMLElement;
-  protected _image?: HTMLImageElement;
+  protected _description: HTMLElement;
+  protected _image: HTMLImageElement;
   protected _title: HTMLElement;
-  protected _category?: HTMLElement;
+  protected _category: HTMLElement;
   protected _price: HTMLElement;
-  protected _button?: HTMLButtonElement;
+  protected _button: HTMLButtonElement;
   protected _id: string;
 
   constructor(container: HTMLElement, protected events: IEvents) {
@@ -57,6 +58,7 @@ export class ProductCard<T> extends Component<IProduct> {
 
   set category(value: string) {
 		this.setText(this._category, value);
+    this.toggleClass(this._category, productCategory[value], true);
 	}
 
 	get category() {

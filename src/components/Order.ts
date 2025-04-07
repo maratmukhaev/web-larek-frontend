@@ -16,16 +16,18 @@ export class OrderPayment extends Form<TOrderPayment> {
 
     if(this._cardButton) {
       this._cardButton.addEventListener('click', () => {
-        this.events.emit('payment:change', {
+        events.emit('payment:change', {
           payment: this._cardButton.name,
+          button: this._cardButton,
         });
       });
     }
 
     if(this._cashButton) {
       this._cashButton.addEventListener('click', () => {
-        this.events.emit('payment:change', {
+        events.emit('payment:change', {
           payment: this._cashButton.name,
+          button: this._cashButton,
         });
       });
     }

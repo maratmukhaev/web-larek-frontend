@@ -85,9 +85,17 @@ export class AppData<T> implements IAppModel {
     }
   };
 
+  setOrderPayment(value: string) {
+		this.order.payment = value;
+	}
+
   setOrderData() {
     this.orderData.items = this.basket.map((item) => item.id);
 		this.orderData.total = this.getBasketTotal();
+    this.orderData.payment = this.order.payment;
+    this.orderData.address = this.order.address;
+    this.orderData.email = this.order.email;
+    this.orderData.phone = this.order.phone;
   }
 
   validateOrder() {

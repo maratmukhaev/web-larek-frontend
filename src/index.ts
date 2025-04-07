@@ -70,14 +70,14 @@ events.on('preview:changed', (item: IProduct) => {
   });
 });
 
-//Активирована кнопка в окне детального просмотра
+//Нажата кнопка в окне детального просмотра товара
 events.on('button:status', ({id}: {id: string}) => {
   const item = appData.getProduct(id);
 	appData.isAddedToBusket(item);
   modal.close();
 });
 
-//Открылась корзина товаров
+//Нажата кнопка корзины в хедере
 events.on('basket:open', () => {
   modal.render({
     content: basket.render(),
@@ -103,29 +103,33 @@ events.on('basket:delete', ({id}: {id: string}) => {
   appData.deleteProductFromBasket(item);
 })
 
-//Открылась форма оплаты и адреса
+//Нажата кнопка оформления заказа в корзине
 events.on('order:open', () => {
   modal.render({
     content: orderPayment.render({
       address: '',
-      valid: true, 
+      valid: false, 
       errors: [],
     })
   })
 })
 
-//Изменилось одно из полей формы
+//Изменилось содержимое одного из полей формы
 events.on('input:change', (data: { 
-  field: keyof IOrderForm, 
-  value: string 
+  field: keyof Pick<IOrderForm, 'address' | 'phone' | 'email'>; 
+  value: string,
 }) => {
   appData.setOrderField(data.field, data.value);
 });
 
 //Изменился способ оплаты
-events.on('payment:change', (data: { payment: string, button: HTMLElement }) => {
-orderPayment.togglePayment(data.button);
-appData.validateOrder();
+events.on('payment:change', (data: { 
+  payment: keyof Pick<IOrderForm, 'payment'>, 
+  button: HTMLElement, 
+}) => {
+  orderPayment.togglePayment(data.button);
+  appData.setOrderPayment(data.payment);
+  appData.validateOrder();
 });
 
 //Изменилось состояние валидации формы
@@ -165,6 +169,7 @@ events.on('contacts:submit', () => {
     });
     appData.clearBasket();
     appData.clearOrder();
+    orderPayment.clearPayment();
   })
   .catch((err) => {
     console.error(err);
@@ -184,6 +189,7 @@ events.on('modal:open', () => {
 //Закрылось модальное окно
 events.on('modal:close', () => {
 	page.locked = false;
+  orderPayment.clearPayment();
 });
 
 //Получаем каталог продуктов с сервера
@@ -192,4 +198,3 @@ api.getProductList()
     .catch(err => {
         console.error(err);
     });
-  

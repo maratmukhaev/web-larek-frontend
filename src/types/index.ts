@@ -20,6 +20,9 @@ export type TProductPage = Omit<IProduct, 'description'>;
 //Тип карточки товара в корзине
 export type TProductBasket = Pick<IProduct, 'id' | 'title' | 'price'>;
 
+//Тип категории товара
+export type TProductCategory = { [key: string]: string };
+
 //Корзина товаров
 export interface IBasket {
   items: TProductBasket[];
