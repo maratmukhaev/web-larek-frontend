@@ -15,7 +15,7 @@ import { IOrderForm, IProduct } from './types';
 const events = new EventEmitter();
 const api = new AppApi(CDN_URL, API_URL);
 
-// Мониторинг всей событий
+// Мониторинг всех событий
 events.onAll(({ eventName, data }) => {
   console.log(eventName, data);
 })
@@ -108,12 +108,11 @@ events.on('order:open', () => {
   modal.render({
     content: orderPayment.render({
       address: '',
-      valid: false, 
+      valid: true, 
       errors: [],
     })
   })
 })
-
 
 //Изменилось одно из полей формы
 events.on('input:change', (data: { 
@@ -131,7 +130,7 @@ appData.validateOrder();
 
 //Изменилось состояние валидации формы
 events.on('formErrors:changed', (errors: Partial<IOrderForm>) => {
-	const { email, phone, address, payment } = errors;
+	const { payment, address, email, phone } = errors;
 	orderPayment.valid = !payment && !address;
 	orderPayment.errors = Object.values({ payment, address })
 		.filter((i) => !!i)
@@ -156,13 +155,20 @@ events.on('order:submit', () => {
 
 //Подтверждены почта и телефон
 events.on('contacts:submit', () => {
-	modal.render({
-		content: success.render({
-      total: appData.getBasketTotal(),
-    }),
-	});
-  appData.clearBasket();
-  appData.clearOrder();
+  appData.setOrderData();
+  api.orderItems(appData.orderData)
+  .then(() => {
+    modal.render({
+      content: success.render({
+        total: appData.getBasketTotal(),
+      }),
+    });
+    appData.clearBasket();
+    appData.clearOrder();
+  })
+  .catch((err) => {
+    console.error(err);
+  })
 });
 
 //Нажата кнопка в окне успешного заказа
@@ -186,3 +192,4 @@ api.getProductList()
     .catch(err => {
         console.error(err);
     });
+  

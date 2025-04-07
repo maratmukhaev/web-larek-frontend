@@ -76,7 +76,7 @@ export interface IAppModel {
   getProductIndex(item: IProduct): number;
   setOrderField(field: keyof IOrderForm, value: string): void;
   validateOrder(): boolean;
-  addBasketToOrder(): void;
+  setOrderData(): void;
   clearBasket(): void;
   clearOrder(): void;
 }

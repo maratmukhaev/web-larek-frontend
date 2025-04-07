@@ -11,7 +11,11 @@ export class AppData<T> implements IAppModel {
     email: '',
     phone: '',
   };
-  orderData: IOrder;
+  orderData: IOrder = {
+    items: [],
+    total: 0,
+    ...this.order,
+  };
   formErrors: TFormErrors = {};
 
   constructor(data: Partial<T>, protected events: IEvents) {
@@ -80,9 +84,9 @@ export class AppData<T> implements IAppModel {
       this.events.emit('order:ready', this.order);
     }
   };
-  
-  addBasketToOrder() {
-    this.orderData.items = this.basket.map((card) => card.id);
+
+  setOrderData() {
+    this.orderData.items = this.basket.map((item) => item.id);
 		this.orderData.total = this.getBasketTotal();
   }
 
@@ -104,11 +108,6 @@ export class AppData<T> implements IAppModel {
     this.events.emit('formErrors:changed', this.formErrors);
     return Object.keys(errors).length === 0;
 };
-  /*
-  setOrder() {
-
-  };
-  */
   
   clearBasket() {
     this.basket = [];

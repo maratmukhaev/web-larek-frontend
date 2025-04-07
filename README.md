@@ -189,7 +189,8 @@ interface IOrderResult {
 - `catalog: IProduct[]` — массив карточек каталога.
 - `preview: string | null` — id карточки, выбранной для детального просмотра.
 - `basket: IProduct[]` — массив карточек, добавленных в корзину.
-- `order: IOrderForm | null` — данные заказа.
+- `order: IOrderForm | null` — данные из формы заказа.
+- `orderData: IOrder` — данные заказа для отправки на сервер.
 - `formErrors: FormErrors` — ошибки форм заказа.
 
 Набор методов для взаимодействия с этими данными:
@@ -204,9 +205,9 @@ interface IOrderResult {
 - `getProductIndex(item: IProduct): number` — получает порядковый номер товара в корзине.
 - `setOrderField(field: keyof IOrderForm, value: string): void` — устанавливает значения полей формы заказа.
 - `validateOrder(): boolean` — проверяет заполнение полей формы заказа.
-- `addBasketToOrder(): IOrder` — добавляет в заказ массив товаров и сумму из корзины.
+- `setOrderData(): IOrder` — сохраняет товары из корзины, сумму заказа и данные из форм заказа в объект, передаваемый на сервер.
 - `clearBasket(): void` — очищает корзину от всех товаров.
-- `clearOrder(): void` — очищает данные заказа.
+- `clearOrder(): void` — очищает данные из форм заказа.
 
 ### Слой представления
 
