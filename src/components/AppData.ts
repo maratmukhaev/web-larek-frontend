@@ -11,6 +11,7 @@ export class AppData<T> implements IAppModel {
     email: '',
     phone: '',
   };
+  orderData: IOrder;
   formErrors: TFormErrors = {};
 
   constructor(data: Partial<T>, protected events: IEvents) {
@@ -80,6 +81,11 @@ export class AppData<T> implements IAppModel {
     }
   };
   
+  addBasketToOrder() {
+    this.orderData.items = this.basket.map((card) => card.id);
+		this.orderData.total = this.getBasketTotal();
+  }
+
   validateOrder() {
     const errors: typeof this.formErrors = {};
     if (!this.order.payment) {

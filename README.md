@@ -302,3 +302,4 @@ interface IOrderResult {
 - `formErrors:changed` — изменение состояния валидации формы.
 - `order:submit` — подтверждение способа оплаты и адреса.
 - `contacts:submit` — подтверждение почты и телефона.
+- `order:finished` — нажатие на кнопку успешного заказа.

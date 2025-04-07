@@ -64,6 +64,7 @@ export interface IAppModel {
   preview: string | null;
   basket: IProduct[];
   order: IOrderForm | null;
+  orderData: IOrder;
 
   setCatalog(items: IProduct[]): void;
   setPreview(item: IProduct): void;
@@ -75,7 +76,7 @@ export interface IAppModel {
   getProductIndex(item: IProduct): number;
   setOrderField(field: keyof IOrderForm, value: string): void;
   validateOrder(): boolean;
-  //addBasketToOrder(): IOrder;
+  addBasketToOrder(): void;
   clearBasket(): void;
   clearOrder(): void;
 }

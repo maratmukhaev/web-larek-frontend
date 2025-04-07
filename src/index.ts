@@ -42,12 +42,8 @@ const orderPayment = new OrderPayment(cloneTemplate(paymentTemplate), events);
 const orderContacts = new OrderContacts(cloneTemplate(contactsTemplate), events);
 const success = new Success(cloneTemplate(successTemplate), events);
 
-//Получаем каталог продуктов с сервера
-api.getProductList()
-    .then(appData.setCatalog.bind(appData))
-    .catch(err => {
-        console.error(err);
-    });
+//Бизнес-логика приложения
+// Реагируем на события
 
 //Изменились элементы каталога
 events.on('products:changed', () => {
@@ -74,14 +70,14 @@ events.on('preview:changed', (item: IProduct) => {
   });
 });
 
-//Нажата кнопка в окне детального просмотра
+//Активирована кнопка в окне детального просмотра
 events.on('button:status', ({id}: {id: string}) => {
   const item = appData.getProduct(id);
 	appData.isAddedToBusket(item);
   modal.close();
 });
 
-//Открылась корзина
+//Открылась корзина товаров
 events.on('basket:open', () => {
   modal.render({
     content: basket.render(),
@@ -101,7 +97,7 @@ events.on('basket:changed', () => {
   })
 })
 
-//Удалился товар из корзины
+//Нажата кнопка удаления товара в корзине
 events.on('basket:delete', ({id}: {id: string}) => {
   const item = appData.getProduct(id);
   appData.deleteProductFromBasket(item);
@@ -112,11 +108,12 @@ events.on('order:open', () => {
   modal.render({
     content: orderPayment.render({
       address: '',
-      valid: true, 
+      valid: false, 
       errors: [],
     })
   })
 })
+
 
 //Изменилось одно из полей формы
 events.on('input:change', (data: { 
@@ -132,28 +129,6 @@ orderPayment.togglePayment(data.button);
 appData.validateOrder();
 });
 
-//Подтверждение способа оплаты и адреса
-events.on('order:submit', () => {
-	modal.render({
-		content: orderContacts.render({
-			email: '',
-      phone: '',
-			valid: false,
-			errors: [],
-		}),
-	});
-});
-
-//Подтверждение почты и телефона
-events.on('contacts:submit', () => {
-	modal.render({
-		content: success.render({
-      total: appData.getBasketTotal(),
-    }),
-	});
-});
-
-
 //Изменилось состояние валидации формы
 events.on('formErrors:changed', (errors: Partial<IOrderForm>) => {
 	const { email, phone, address, payment } = errors;
@@ -167,6 +142,34 @@ events.on('formErrors:changed', (errors: Partial<IOrderForm>) => {
 		.join(' и ');
 });
 
+//Подтверждены способ оплаты и адрес
+events.on('order:submit', () => {
+	modal.render({
+		content: orderContacts.render({
+			email: '',
+      phone: '',
+			valid: false,
+			errors: [],
+		}),
+	});
+});
+
+//Подтверждены почта и телефон
+events.on('contacts:submit', () => {
+	modal.render({
+		content: success.render({
+      total: appData.getBasketTotal(),
+    }),
+	});
+  appData.clearBasket();
+  appData.clearOrder();
+});
+
+//Нажата кнопка в окне успешного заказа
+events.on('order:finished', () => {
+  modal.close();
+})
+
 //Открылось модальное окно
 events.on('modal:open', () => {
 	page.locked = true;
@@ -176,3 +179,10 @@ events.on('modal:open', () => {
 events.on('modal:close', () => {
 	page.locked = false;
 });
+
+//Получаем каталог продуктов с сервера
+api.getProductList()
+    .then(appData.setCatalog.bind(appData))
+    .catch(err => {
+        console.error(err);
+    });
