@@ -15,11 +15,6 @@ import { IOrderForm, IProduct } from './types';
 const events = new EventEmitter();
 const api = new AppApi(CDN_URL, API_URL);
 
-// Мониторинг всех событий
-events.onAll(({ eventName, data }) => {
-  console.log(eventName, data);
-})
-
 //Темплейты
 const productCatalogTemplate = ensureElement<HTMLTemplateElement>('#card-catalog');
 const productPreviewTemplate = ensureElement<HTMLTemplateElement>('#card-preview');
