@@ -22,10 +22,6 @@ export class AppData<T> implements IAppModel {
     Object.assign(this, data);
   }
 
-  getProduct(id: string) {
-		return this.catalog.find(item => item.id === id);
-	}
-
   setCatalog(items: IProduct[]) {
     this.catalog = items;
     this.events.emit('products:changed', { catalog: this.catalog });
@@ -35,15 +31,19 @@ export class AppData<T> implements IAppModel {
     this.preview = item.id;
     this.events.emit('preview:changed', item);
   };
+
+  getProduct(id: string) {
+		return this.catalog.find(item => item.id === id);
+	}
   
   addProductToBasket(item: IProduct) {
     this.basket.push(item);
-    this.events.emit('basket:changed', item);
+    this.events.emit('basket:changed');
   };
   
   deleteProductFromBasket(item: IProduct) {
     this.basket = this.basket.filter(product => product.id !== item.id);
-    this.events.emit('basket:changed', item);
+    this.events.emit('basket:changed');
   };
   
   isAddedToBusket(item: IProduct) {
@@ -80,9 +80,7 @@ export class AppData<T> implements IAppModel {
   
   setOrderField(field: keyof IOrderForm, value: string) {
     this.order[field] = value;
-    if (this.validateOrder()) {
-      this.events.emit('order:ready', this.order);
-    }
+    this.validateOrder();
   };
 
   setOrderPayment(value: string) {

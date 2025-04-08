@@ -58,7 +58,9 @@ export class ProductCard<T> extends Component<IProduct> {
 
   set category(value: string) {
 		this.setText(this._category, value);
-    this.toggleClass(this._category, productCategory[value], true);
+    if(this._category) {
+      this.toggleClass(this._category, productCategory[value], true);
+    }
 	}
 
 	get category() {

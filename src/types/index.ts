@@ -29,7 +29,7 @@ export interface IBasket {
   total: number | null;
 }
 
-//Форма заказа
+//Данные формы заказа
 export interface IOrderForm {
   payment: string;
   address: string;
@@ -37,7 +37,7 @@ export interface IOrderForm {
   phone: string;
 }
 
-//Заказ
+//Данные заказа для отправки на сервер
 export interface IOrder extends IOrderForm {
   total: number;
   items: string[];
@@ -68,18 +68,22 @@ export interface IAppModel {
   basket: IProduct[];
   order: IOrderForm | null;
   orderData: IOrder;
+  formErrors: TFormErrors;
 
   setCatalog(items: IProduct[]): void;
   setPreview(item: IProduct): void;
+  getProduct(id: string): IProduct;
   addProductToBasket(item: IProduct): void;
   deleteProductFromBasket(item: IProduct): void;
   isAddedToBusket(item: IProduct): void;
+  getButtonStatus(item: IProduct): void;
   getBasketTotal(): number;
   getBasketCount(): number;
   getProductIndex(item: IProduct): number;
   setOrderField(field: keyof IOrderForm, value: string): void;
-  validateOrder(): boolean;
+  setOrderPayment(value: string): void;
   setOrderData(): void;
+  validateOrder(): boolean;
   clearBasket(): void;
   clearOrder(): void;
 }

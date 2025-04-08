@@ -7,14 +7,14 @@ interface IModalData {
 }
 
 export class Modal extends Component<IModalData> {
-  protected _closeButton: HTMLButtonElement;
   protected _content: HTMLElement;
+  protected _closeButton: HTMLButtonElement;
 
   constructor(container: HTMLElement, protected events: IEvents) {
     super(container);
 
-    this._closeButton = ensureElement<HTMLButtonElement>('.modal__close', container);
     this._content = ensureElement<HTMLElement>('.modal__content', container);
+    this._closeButton = ensureElement<HTMLButtonElement>('.modal__close', container);
 
     this._closeButton.addEventListener('click', this.close.bind(this));
     this.container.addEventListener('click', this.close.bind(this));
