@@ -60,7 +60,7 @@ export class AppData<T> implements IAppModel {
 		}
     
     if (!this.basket.some(product => product.id === item.id)) {
-      return 'Добавить в корзину';
+      return 'Купить';
     } else {
       return 'Удалить из корзины';
     }
