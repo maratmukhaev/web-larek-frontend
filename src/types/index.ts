@@ -67,7 +67,6 @@ export interface IAppModel {
   preview: string | null;
   basket: IProduct[];
   order: IOrderForm | null;
-  orderData: IOrder;
   formErrors: TFormErrors;
 
   setCatalog(items: IProduct[]): void;
@@ -76,13 +75,13 @@ export interface IAppModel {
   addProductToBasket(item: IProduct): void;
   deleteProductFromBasket(item: IProduct): void;
   isAddedToBusket(item: IProduct): void;
-  getButtonStatus(item: IProduct): void;
+  getButtonText(item: IProduct): void;
   getBasketTotal(): number;
   getBasketCount(): number;
   getProductIndex(item: IProduct): number;
   setOrderField(field: keyof IOrderForm, value: string): void;
   setOrderPayment(value: string): void;
-  setOrderData(): void;
+  getOrderData(): void;
   validateOrder(): boolean;
   clearBasket(): void;
   clearOrder(): void;

@@ -11,11 +11,6 @@ export class AppData<T> implements IAppModel {
     email: '',
     phone: '',
   };
-  orderData: IOrder = {
-    items: [],
-    total: 0,
-    ...this.order,
-  };
   formErrors: TFormErrors = {};
 
   constructor(data: Partial<T>, protected events: IEvents) {
@@ -54,7 +49,7 @@ export class AppData<T> implements IAppModel {
     }
   };
 
-  getButtonStatus(item: IProduct) {
+  getButtonText(item: IProduct) {
     if (!item.price) {
 			return 'Не продается';
 		}
@@ -87,13 +82,12 @@ export class AppData<T> implements IAppModel {
 		this.order.payment = value;
 	}
 
-  setOrderData() {
-    this.orderData.items = this.basket.map((item) => item.id);
-		this.orderData.total = this.getBasketTotal();
-    this.orderData.payment = this.order.payment;
-    this.orderData.address = this.order.address;
-    this.orderData.email = this.order.email;
-    this.orderData.phone = this.order.phone;
+  getOrderData() {
+    return {
+      ...this.order,
+      items: this.basket.map((item) => item.id),
+      total: this.getBasketTotal(),
+    }
   }
 
   validateOrder() {

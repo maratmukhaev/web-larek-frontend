@@ -60,7 +60,7 @@ events.on('preview:changed', (item: IProduct) => {
   modal.render({
     content: productCardPreview.render({
       ...item, 
-      button: appData.getButtonStatus(item),
+      button: appData.getButtonText(item),
     })
   });
 });
@@ -100,10 +100,12 @@ events.on('basket:delete', ({id}: {id: string}) => {
 
 //Нажата кнопка оформления заказа в корзине
 events.on('order:open', () => {
+  orderPayment.clearPayment();
   modal.render({
     content: orderPayment.render({
-      address: '',
-      valid: false, 
+      payment: appData.order.payment,
+      address: appData.order.address,
+      valid: appData.validateOrder(), 
       errors: [],
     })
   })
@@ -130,23 +132,22 @@ events.on('payment:change', (data: {
 //Изменилось состояние валидации формы
 events.on('formErrors:changed', (errors: Partial<IOrderForm>) => {
 	const { payment, address, email, phone } = errors;
+  const createValidationError = (errorsObject: Record<string, string>): string => 
+    Object.values(errorsObject).filter((i) => !!i).join(' и ');
+
 	orderPayment.valid = !payment && !address;
-	orderPayment.errors = Object.values({ payment, address })
-		.filter((i) => !!i)
-		.join(' и ');
+	orderPayment.errors = createValidationError({ payment, address });
   orderContacts.valid = !email && !phone;
-  orderContacts.errors = Object.values({ email, phone })
-		.filter((i) => !!i)
-		.join(' и ');
+  orderContacts.errors = createValidationError({ email, phone });
 });
 
 //Подтверждены способ оплаты и адрес
 events.on('order:submit', () => {
 	modal.render({
 		content: orderContacts.render({
-			email: '',
-      phone: '',
-			valid: false,
+			email: appData.order.email,
+      phone: appData.order.phone,
+			valid: appData.validateOrder(),
 			errors: [],
 		}),
 	});
@@ -154,8 +155,7 @@ events.on('order:submit', () => {
 
 //Подтверждены почта и телефон
 events.on('contacts:submit', () => {
-  appData.setOrderData();
-  api.orderItems(appData.orderData)
+  api.orderItems(appData.getOrderData())
   .then(() => {
     modal.render({
       content: success.render({
@@ -164,7 +164,6 @@ events.on('contacts:submit', () => {
     });
     appData.clearBasket();
     appData.clearOrder();
-    orderPayment.clearPayment();
   })
   .catch((err) => {
     console.error(err);
@@ -184,7 +183,6 @@ events.on('modal:open', () => {
 //Закрылось модальное окно
 events.on('modal:close', () => {
 	page.locked = false;
-  orderPayment.clearPayment();
 });
 
 //Получаем каталог продуктов с сервера

@@ -197,7 +197,6 @@ interface IOrderResult {
 - `preview: string | null` — id карточки, выбранной для детального просмотра.
 - `basket: IProduct[]` — массив карточек, добавленных в корзину.
 - `order: IOrderForm | null` — данные формы заказа.
-- `orderData: IOrder` — данные заказа для отправки на сервер.
 - `formErrors: FormErrors` — ошибки форм заказа.
 
 Набор методов для взаимодействия с этими данными:
@@ -208,14 +207,14 @@ interface IOrderResult {
 - `addProductToBasket(item: IProduct): void` — добавляет товар в массив корзины. 
 - `deleteProductFromBasket(id: string): void` — удаляет товар из массива корзины.
 - `isAdded(item: IProduct): void` — проверяет наличие товара в массиве корзины.
-- `getButtonStatus(item: IProduct): void` — получает статус кнопки в окне детального просмотра карточки. 
+- `getButtonText(item: IProduct): void` — получает статус кнопки в окне детального просмотра карточки. 
 - `getBasketTotal(): number` — получает общую стоимость товаров в корзине.
 - `getBasketCount(): number` — получает количество товаров в корзине.
 - `getProductIndex(item: IProduct): number` — получает порядковый номер товара в корзине.
 - `setOrderField(field: keyof IOrderForm, value: string): void` — сохраняет значения, введенные в поля формы заказа.
 - `setOrderPayment(value: string): void` — сохраняет значение способа оплаты.
 - `validateOrder(): boolean` — проверяет заполнение формы заказа.
-- `setOrderData(): void` — сохраняет данные заказа для отправки на сервер.
+- `getOrderData(): void` — получает объект данных заказа для отправки на сервер.
 - `clearBasket(): void` — очищает корзину от всех товаров.
 - `clearOrder(): void` — очищает данные из форм заказа.
 
